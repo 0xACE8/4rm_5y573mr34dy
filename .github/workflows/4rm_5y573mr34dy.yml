@@ -20,7 +20,7 @@ on:
         default: 'false'
 
 env:
-  REPO_URL: https://github.com/coolsnowwolf/lede
+  REPO_URL: https://github.com/0xACE8/lede-armsr
   REPO_BRANCH: master
   FEEDS_CONF: f33d5.c0nf.d3f4ul7
   CONFIG_FILE: 4rm_5y573mr34dy.c0nf
