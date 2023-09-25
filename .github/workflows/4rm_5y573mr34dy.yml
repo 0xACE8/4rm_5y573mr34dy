@@ -8,7 +8,7 @@
 # Description: Build using GitHub Actions
 #
 
-name: Build 4rm 5y573mr34dy Atcions
+name: Build 4rm 5y573mr34dy 1w Atcions
 
 on:
   repository_dispatch:
@@ -20,7 +20,7 @@ on:
         default: 'false'
 
 env:
-  REPO_URL: https://github.com/0xACE8/lede-armsr
+  REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: master
   FEEDS_CONF: f33d5.c0nf.d3f4ul7
   CONFIG_FILE: 4rm_5y573mr34dy.c0nf
@@ -28,7 +28,7 @@ env:
   DIY_P2_SH: d1y-p4r72.sh
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  TZ: Asia/Taipei
+  TZ: "America/Los_Angeles"
 
 jobs:
   build:
@@ -45,14 +45,11 @@ jobs:
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
         sudo -E apt-get -qq install $(curl -fsSL git.io/depends-ubuntu-2004)
-        sudo apt-get install gcc-aarch64-linux-gnu
-        sudo apt-get install g++-aarch64-linux-gnu
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-
 
     - name: Clone source code
       working-directory: /workdir
@@ -60,13 +57,39 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-        
+
+    - name: install turboacc and patch
+      working-directory: ./openwrt
+      run: |
+        mkdir -p turboacc_tmp ./package/turboacc
+        cd turboacc_tmp
+        git clone https://github.com/chenmozhijin/turboacc -b package
+        cd ../package/turboacc
+        git clone https://github.com/fullcone-nat-nftables/nft-fullcone
+        git clone https://github.com/chenmozhijin/turboacc
+        mv ./turboacc/luci-app-turboacc ./luci-app-turboacc
+        rm -rf ./turboacc
+        cd ../..
+        cp -f turboacc_tmp/turboacc/hack-6.1/952-add-net-conntrack-events-support-multiple-registrant.patch ./target/linux/generic/hack-6.1/952-add-net-conntrack-events-support-multiple-registrant.patch
+        cp -f turboacc_tmp/turboacc/hack-6.1/953-net-patch-linux-kernel-to-support-shortcut-fe.patch ./target/linux/generic/hack-6.1/953-net-patch-linux-kernel-to-support-shortcut-fe.patch
+        cp -f turboacc_tmp/turboacc/pending-6.1/613-netfilter_optional_tcp_window_check.patch ./target/linux/generic/pending-6.1/613-netfilter_optional_tcp_window_check.patch
+        rm -rf ./package/libs/libnftnl ./package/network/config/firewall4 ./package/network/utils/nftables
+        mkdir -p ./package/network/config/firewall4 ./package/libs/libnftnl ./package/network/utils/nftables
+        cp -r ./turboacc_tmp/turboacc/shortcut-fe ./package/turboacc
+        cp -RT ./turboacc_tmp/turboacc/firewall4-$(grep -o 'FIREWALL4_VERSION=.*' ./turboacc_tmp/turboacc/version | cut -d '=' -f 2)/firewall4 ./package/network/config/firewall4
+        cp -RT ./turboacc_tmp/turboacc/libnftnl-$(grep -o 'LIBNFTNL_VERSION=.*' ./turboacc_tmp/turboacc/version | cut -d '=' -f 2)/libnftnl ./package/libs/libnftnl
+        cp -RT ./turboacc_tmp/turboacc/nftables-$(grep -o 'NFTABLES_VERSION=.*' ./turboacc_tmp/turboacc/version | cut -d '=' -f 2)/nftables ./package/network/utils/nftables
+        rm -rf turboacc_tmp
+        echo "# CONFIG_NF_CONNTRACK_CHAIN_EVENTS is not set" >> target/linux/generic/config-6.1
+        echo "# CONFIG_SHORTCUT_FE is not set" >> target/linux/generic/config-6.1
+        sed -i 's/Turbo ACC 网络加速/网络加速/g' package/turboacc/luci-app-turboacc/po/zh-cn/turboacc.po
+
     - name: Cache
-      uses: klever1988/cachewrtbuild@main
+      uses: stupidloud/cachewrtbuild@main
       with:
-          ccache: 'true'
-          mixkey: 'armsr'
-          prefix: 'openwrt'       
+        ccache: 'true'
+        mixkey: 'armsr1w'
+        prefix: 'openwrt'
 
     - name: Load custom feeds
       run: |
@@ -79,7 +102,6 @@ jobs:
       working-directory: ./openwrt
       run: |
         ./scripts/feeds update -a
-        ./scripts/feeds install -a -p -f ace
         ./scripts/feeds install -a
         ./scripts/feeds install -a
 
