@@ -26,10 +26,6 @@ sed -i 's/"终端"/"TTYD 终端"/g' feeds/luci/applications/luci-app-ttyd/po/zh_
 
 sed -i 's/START=18/START=99/g' feeds/packages/net/dnscrypt-proxy2/files/dnscrypt-proxy.init
 
-# DHCP
-#mkdir -p package/base-files/files/etc/dnsmasq.d
-#wget --no-check-certificate -O package/base-files/files/etc/dnsmasq.d/accelerated-domains.china.conf "https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/accelerated-domains.china.conf"
-
 # Boost UDP
 echo '# optimize udp' >>package/base-files/files/etc/sysctl.d/10-default.conf
 echo 'net.core.rmem_max=26214400' >>package/base-files/files/etc/sysctl.d/10-default.conf
@@ -39,6 +35,6 @@ echo 'net.core.wmem_default=26214400' >>package/base-files/files/etc/sysctl.d/10
 echo 'net.core.netdev_max_backlog=2048' >>package/base-files/files/etc/sysctl.d/10-default.conf
 
 # upgrade config
-wget --no-check-certificate https://raw.githubusercontent.com/0xACE8/r45pb3rry_p1_3b_1m/main/99-init-settings -O package/base-files/files/etc/uci-defaults/99-init-settings
+wget --no-check-certificate https://raw.githubusercontent.com/0xACE8/4rm_5y573mr34dy/main/99-init-settings -O package/base-files/files/etc/uci-defaults/99-init-settings
 
 echo "diy-part2.sh is done."
