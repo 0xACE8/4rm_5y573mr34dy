@@ -4,29 +4,31 @@
 # Lisence: MIT
 # Author: 0xACE7
 #=================================================
-#1. Modify default IP
-sed -i 's/192.168.1.1/192.168.50.65/g' package/base-files/files/bin/config_generate
+# Modify default IP
+sed -i 's/192.168.1.1/192.168.50.72/g' package/base-files/files/bin/config_generate
 
-#2. Modify Hostname
-sed -i '/uci commit system/i\uci set system.@system[0].hostname='TimeCloud'' package/lean/default-settings/files/zzz-default-settings
+# Set password to PASSWORD
+#sed -i 's/root:::0:99999:7:::/root:$1$4xKZB45Q$w0CPT5M6vBWbYNmSWuxfU.:0:0:99999:7:::/g' package/base-files/files/etc/shadow
 
-#3. Password is ********
-#sed -i 's/root:$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0:0:99999:7:::/root:$1$4xKZB45Q$w0CPT5M6vBWbYNmSWuxfU.:19007:0:99999:7:::/g' package/lean/default-settings/files/zzz-default-settings
+# Change ash to bash
+sed -i 's/ash/bash/g' package/base-files/files/etc/passwd
 
-#4. Modify builder
-sed -i "s/OpenWrt /0xACE7 build $(TZ=UTC-3 date "+%Y.%m.%d") @ OpenWrt /g" package/lean/default-settings/files/zzz-default-settings
+# Change language=auto to zh_cn
+#sed -i 's/lang="auto"/lang="zh_cn"/g' package/emortal/default-settings/files/99-default-settings
 
-#5. Change luci list name
-sed -i 's/"Argone 主题设置"/"主题设置"/g' feeds/ace/luci-app-argone-config/po/zh-cn/argone-config.po
-sed -i 's/"Turbo ACC 网络加速"/"网络加速"/g' feeds/luci/applications/luci-app-turboacc/po/zh-cn/turboacc.po
+# Change luci list name
+#sed -i 's/"Argon 主题设置"/"主题设置"/g' feeds/luci/applications/luci-app-argon-config/po/zh_Hans/argon-config.po
 
-rm -rf feeds/packages/net/kcptun
+sed -i 's/services/system/g' feeds/luci/applications/luci-app-ttyd/root/usr/share/luci/menu.d/luci-app-ttyd.json
 
-# Modify firewall
-#sed -i '/xiaomi.cn/d' package/lean/default-settings/files/zzz-default-settings
-sed -i 's/#echo/echo/g' package/lean/default-settings/files/zzz-default-settings
-sed -i "45 i\echo 'iptables -t nat -I POSTROUTING -o eth0 -j MASQUERADE' >> /etc/firewall.user" package/lean/default-settings/files/zzz-default-settings
-sed -i "46 i\echo 'ip6tables -t nat -I POSTROUTING -o eth0 -j MASQUERADE' >> /etc/firewall.user" package/lean/default-settings/files/zzz-default-settings
+# change some tips
+sed -i 's/"终端"/"TTYD 终端"/g' feeds/luci/applications/luci-app-ttyd/po/zh_Hans/ttyd.po
+
+sed -i 's/START=18/START=99/g' feeds/packages/net/dnscrypt-proxy2/files/dnscrypt-proxy.init
+
+# DHCP
+#mkdir -p package/base-files/files/etc/dnsmasq.d
+#wget --no-check-certificate -O package/base-files/files/etc/dnsmasq.d/accelerated-domains.china.conf "https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/accelerated-domains.china.conf"
 
 # Boost UDP
 echo '# optimize udp' >>package/base-files/files/etc/sysctl.d/10-default.conf
@@ -36,15 +38,7 @@ echo 'net.core.wmem_max=26214400' >>package/base-files/files/etc/sysctl.d/10-def
 echo 'net.core.wmem_default=26214400' >>package/base-files/files/etc/sysctl.d/10-default.conf
 echo 'net.core.netdev_max_backlog=2048' >>package/base-files/files/etc/sysctl.d/10-default.conf
 
-# add dns list
-#mkdir -p package/base-files/files/etc/dnsmasq.d
-#wget --no-check-certificate -O package/base-files/files/etc/dnsmasq.d/accelerated-domains.china.conf "https://raw.githubusercontent.com/felixonmars/dnsmasq-china-list/master/accelerated-domains.china.conf"
-
-# Change to my banner
-#sudo rm package/base-files/files/etc/banner
-#wget https://raw.githubusercontent.com/0xACE8/OWT/main/x6u/banner -O package/base-files/files/etc/banner
-
 # upgrade config
-#wget --no-check-certificate https://raw.githubusercontent.com/0xACE8/OWT/main/70c/99-init-settings -O package/base-files/files/etc/uci-defaults/99-init-settings
+wget --no-check-certificate https://raw.githubusercontent.com/0xACE8/r45pb3rry_p1_3b_1m/main/99-init-settings -O package/base-files/files/etc/uci-defaults/99-init-settings
 
-echo "Done!"
+echo "diy-part2.sh is done."
